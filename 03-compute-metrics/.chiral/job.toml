@@ -1,0 +1,26 @@
+name        = "Compute Metrics"
+description = "Full binding-metrics suite on both pre- and post-relaxation structures: interface (SASA, delta_g_int, H-bonds, salt bridges), force-field interaction energy, Coulomb electrostatics, Ramachandran, omega planarity, shape complementarity, void volume, and RMSD comparison."
+inputs      = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif"]
+outputs     = ["scores.csv", "scores.json"]
+
+[container]
+dockerfile = "./Dockerfile"
+
+[scripts]
+run = "./run.sh"
+
+[params.DEVICE]
+type         = "enum"
+default      = "cpu"
+hint         = "OpenMM compute device"
+enum_values  = ["cpu", "cuda"]
+
+[params.PEPTIDE_CHAIN]
+type    = "string"
+default = ""
+hint    = "Peptide chain ID (empty = auto)"
+
+[params.RECEPTOR_CHAIN]
+type    = "string"
+default = ""
+hint    = "Receptor chain ID (empty = auto)"
