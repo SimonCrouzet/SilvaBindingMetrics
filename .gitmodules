@@ -1,0 +1,3 @@
+[submodule "binding-metrics"]
+	path = binding-metrics
+	url = https://github.com/SimonCrouzet/BindingMetrics.git
