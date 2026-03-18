@@ -1,0 +1,13 @@
+{
+  "title": "Peptide Binding Metrics Report",
+  "sections": ["summary", "success_rate", "histograms", "top_table"],
+  "rank_by": "post_delta_g_int",
+  "rank_ascending": true,
+  "top_n": 20,
+  "metadata_columns": [
+    "sample_id", "success", "error_message",
+    "peptide_chain", "receptor_chain", "design_chain",
+    "pre_structure", "post_structure"
+  ],
+  "plots": null
+}

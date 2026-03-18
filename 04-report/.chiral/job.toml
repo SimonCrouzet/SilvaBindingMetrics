@@ -1,0 +1,20 @@
+name        = "Report"
+description = "Generate a self-contained HTML report from scores.csv using binding-metrics-report. Includes summary statistics, metric distributions, and a ranked top-candidates table."
+inputs      = ["scores.csv", "scores.json"]
+outputs     = ["scores.csv", "scores.json", "report.html"]
+
+[container]
+dockerfile = "./Dockerfile"
+
+[scripts]
+run = "./run.sh"
+
+[params.REPORT_TITLE]
+type    = "string"
+default = "Peptide Binding Metrics Report"
+hint    = "HTML report title"
+
+[params.RANK_BY]
+type    = "string"
+default = "post_delta_g_int"
+hint    = "CSV column to rank candidates by (ascending, lower = better)"
