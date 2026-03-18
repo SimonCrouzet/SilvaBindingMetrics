@@ -1,0 +1,39 @@
+name        = "Structure Preparation"
+description = "Fix missing atoms, replace non-standard residues, and add hydrogens using binding-metrics-prep (PDBFixer)."
+outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "prep_summary*.json"]
+
+[container]
+dockerfile = "./Dockerfile"
+
+[scripts]
+run = "./run.sh"
+
+[params.INPUT_DIR]
+type    = "string"
+default = "input_files"
+hint    = "Subfolder (relative to job folder) containing input structures"
+
+[params.INPUT_COMPLEX]
+type    = "string"
+default = "example_complex.cif"
+hint    = "Input filename inside INPUT_DIR (single mode)"
+
+[params.BATCH_MODE]
+type    = "boolean"
+default = false
+hint    = "Process all CIF/PDB in INPUT_DIR instead of INPUT_COMPLEX"
+
+[params.PH]
+type    = "float"
+default = 7.4
+hint    = "Protonation pH"
+
+[params.PEPTIDE_CHAIN]
+type    = "string"
+default = ""
+hint    = "Peptide chain ID override (empty = auto-detect smallest chain)"
+
+[params.RECEPTOR_CHAIN]
+type    = "string"
+default = ""
+hint    = "Receptor chain ID override (empty = auto-detect largest chain)"
