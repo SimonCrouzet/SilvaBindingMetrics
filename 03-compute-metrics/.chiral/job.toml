@@ -4,7 +4,7 @@ inputs      = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.
 outputs     = ["scores.csv", "scores.json"]
 
 [container]
-dockerfile = "./Dockerfile"
+image = "simoncrouzet/binding-metrics:latest"
 
 [scripts]
 run = "./run.sh"

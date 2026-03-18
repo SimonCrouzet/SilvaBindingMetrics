@@ -3,7 +3,7 @@ description = "Fix missing atoms, replace non-standard residues, and add hydroge
 outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "prep_summary*.json"]
 
 [container]
-dockerfile = "./Dockerfile"
+image = "simoncrouzet/binding-metrics:latest"
 
 [scripts]
 run = "./run.sh"

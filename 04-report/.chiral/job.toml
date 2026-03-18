@@ -4,7 +4,7 @@ inputs      = ["scores.csv", "scores.json"]
 outputs     = ["scores.csv", "scores.json", "report.html"]
 
 [container]
-dockerfile = "./Dockerfile"
+image = "simoncrouzet/binding-metrics:latest"
 
 [scripts]
 run = "./run.sh"
