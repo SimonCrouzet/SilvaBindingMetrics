@@ -1,0 +1,42 @@
+name        = "MD Relaxation"
+description = "Implicit-solvent multi-stage minimisation + optional short MD via binding-metrics-relax (AMBER ff14SB, OBC2/GBn2). Passes through pre-relaxation structures so node 03 can compare before/after."
+inputs      = ["cleaned_*.cif", "cleaned_*.pdb"]
+outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif"]
+
+[container]
+dockerfile = "./Dockerfile"
+
+[scripts]
+run = "./run.sh"
+
+[params.MD_DURATION_PS]
+type    = "float"
+default = 200.0
+hint    = "MD duration in picoseconds (0 = minimisation only)"
+
+[params.SOLVENT_MODEL]
+type         = "enum"
+default      = "obc2"
+hint         = "Implicit solvent model"
+enum_values  = ["obc2", "gbn2"]
+
+[params.DEVICE]
+type         = "enum"
+default      = "cpu"
+hint         = "OpenMM compute device"
+enum_values  = ["cpu", "cuda"]
+
+[params.PEPTIDE_CHAIN]
+type    = "string"
+default = ""
+hint    = "Peptide chain ID (empty = auto)"
+
+[params.RECEPTOR_CHAIN]
+type    = "string"
+default = ""
+hint    = "Receptor chain ID (empty = auto)"
+
+[params.BATCH_MODE]
+type    = "boolean"
+default = false
+hint    = "Batch mode"
