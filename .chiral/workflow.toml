@@ -1,0 +1,7 @@
+name        = "peptide-binding-metrics"
+description = "Physics-based scoring pipeline for peptide-protein complexes. Cleans the input structure, runs implicit-solvent MD relaxation, computes a full suite of binding metrics before and after relaxation, and generates a ranked HTML report. Powered by the binding-metrics package."
+
+[dependencies]
+02-md-relaxation   = ["01-structure-prep"]
+03-compute-metrics = ["02-md-relaxation"]
+04-report          = ["03-compute-metrics"]
