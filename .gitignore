@@ -212,5 +212,9 @@ __marimo__/
 *.sdf
 *.mol2
 
+# Exception: bundled example structures
+!01-structure-prep/input_files/example_*.cif
+!01-structure-prep/input_files/example_*.pdb
+
 # Workflow outputs
 **/outputs/

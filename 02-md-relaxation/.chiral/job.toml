@@ -39,4 +39,4 @@ hint    = "Receptor chain ID (empty = auto)"
 [params.BATCH_MODE]
 type    = "boolean"
 default = false
-hint    = "Batch mode"
+hint    = "Process all cleaned CIF/PDB files (false = single file, matches node 01)"

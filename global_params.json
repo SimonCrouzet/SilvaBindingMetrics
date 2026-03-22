@@ -1,6 +1,6 @@
 {
   "INPUT_DIR":       "input_files",
-  "INPUT_COMPLEX":   "example_complex.cif",
+  "INPUT_COMPLEX":   "example_linearpeptide_1YCR.cif",
   "BATCH_MODE":      "false",
   "PH":              "7.4",
   "PEPTIDE_CHAIN":   "",

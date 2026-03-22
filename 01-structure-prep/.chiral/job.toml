@@ -15,13 +15,13 @@ hint    = "Subfolder (relative to job folder) containing input structures"
 
 [params.INPUT_COMPLEX]
 type    = "string"
-default = "example_complex.cif"
+default = "example_linearpeptide_1YCR.cif"
 hint    = "Input filename inside INPUT_DIR (single mode)"
 
 [params.BATCH_MODE]
 type    = "boolean"
 default = false
-hint    = "Process all CIF/PDB in INPUT_DIR instead of INPUT_COMPLEX"
+hint    = "Process all CIF/PDB in INPUT_DIR (false = single file via INPUT_COMPLEX)"
 
 [params.PH]
 type    = "float"
