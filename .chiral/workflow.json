@@ -10,7 +10,6 @@
     "RECEPTOR_CHAIN": ["String",  "",                                "Receptor chain ID override (empty = auto-detect by Cα contacts)"],
     "MD_DURATION_PS": ["Float",   200.0,                             "MD simulation duration in picoseconds (0 = minimisation only)"],
     "SOLVENT_MODEL":  ["String",  "obc2",                            "Implicit solvent model: obc2 or gbn2"],
-    "DEVICE":         ["String",  "cuda",                            "OpenMM compute device: cuda or cpu"],
-    "REPORT_SUMMARY": ["Boolean", true,                              "Write a Markdown scorecard (*_report.md) alongside the CSV"]
+    "DEVICE":         ["String",  "cuda",                            "OpenMM compute device: cuda or cpu"]
   }
 }

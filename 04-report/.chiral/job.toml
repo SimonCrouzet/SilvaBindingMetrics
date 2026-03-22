@@ -1,7 +1,7 @@
 name        = "Report"
-description = "Converts each *_results.json from node 03 into CSV and an optional Markdown summary scorecard via binding-metrics-report."
+description = "Converts each *_results.json from node 03 into CSV and a self-contained HTML report (RAG scorecard) via binding-metrics-report."
 inputs      = ["*_results.json"]
-outputs     = ["*_results.json", "*_results.csv", "*_report.md"]
+outputs     = ["*_results.json", "*_results.csv", "*_report.html"]
 
 [container]
 image = "simoncrouzet/binding-metrics:latest"
@@ -9,7 +9,3 @@ image = "simoncrouzet/binding-metrics:latest"
 [scripts]
 run = "./run.sh"
 
-[params.REPORT_SUMMARY]
-type    = "boolean"
-default = true
-hint    = "Write a human-readable *_report.md scorecard alongside the CSV"
