@@ -1,7 +1,7 @@
 name        = "Report"
-description = "Generate a self-contained HTML report from scores.csv using binding-metrics-report. Includes summary statistics, metric distributions, and a ranked top-candidates table."
-inputs      = ["scores.csv", "scores.json"]
-outputs     = ["scores.csv", "scores.json", "report.html"]
+description = "Converts each *_results.json from node 03 into CSV and an optional Markdown summary scorecard via binding-metrics-report."
+inputs      = ["*_results.json"]
+outputs     = ["*_results.json", "*_results.csv", "*_report.md"]
 
 [container]
 image = "simoncrouzet/binding-metrics:latest"
@@ -9,12 +9,7 @@ image = "simoncrouzet/binding-metrics:latest"
 [scripts]
 run = "./run.sh"
 
-[params.REPORT_TITLE]
-type    = "string"
-default = "Peptide Binding Metrics Report"
-hint    = "HTML report title"
-
-[params.RANK_BY]
-type    = "string"
-default = "post_delta_g_int"
-hint    = "CSV column to rank candidates by (ascending, lower = better)"
+[params.REPORT_SUMMARY]
+type    = "boolean"
+default = true
+hint    = "Write a human-readable *_report.md scorecard alongside the CSV"
