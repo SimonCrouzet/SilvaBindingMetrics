@@ -1,7 +1,7 @@
 name        = "Compute Metrics"
-description = "Full binding-metrics suite on both pre- and post-relaxation structures: interface (SASA, delta_g_int, H-bonds, salt bridges), force-field interaction energy, Coulomb electrostatics, Ramachandran, omega planarity, shape complementarity, void volume, and RMSD comparison."
+description = "Full binding-metrics suite on relaxed structures: interaction energy, interface (SASA, ΔG_int, H-bonds, salt bridges), geometry (Ramachandran, ω-planarity, shape complementarity, void volume), Coulomb electrostatics, and pre/post RMSD. Outputs one *_results.json per structure."
 inputs      = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif"]
-outputs     = ["scores.csv", "scores.json"]
+outputs     = ["*_results.json"]
 
 [container]
 image = "simoncrouzet/binding-metrics:latest"
@@ -11,7 +11,7 @@ run = "./run.sh"
 
 [params.DEVICE]
 type         = "enum"
-default      = "cpu"
+default      = "cuda"
 hint         = "OpenMM compute device"
 enum_values  = ["cpu", "cuda"]
 

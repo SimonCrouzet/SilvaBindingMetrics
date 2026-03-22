@@ -1,187 +1,127 @@
-"""
-Node 03 — Compute Metrics
+"""Node 03 — Compute Metrics
 
-For each structure pair (pre-relaxation cleaned_*.cif, post-relaxation *_md_final.cif
-or *_minimized.cif), runs the full binding-metrics suite and writes scores.csv.
+Mirrors the steps of ``binding-metrics-run`` on the relaxed structures from
+node 02: energy → interface → geometry → electrostatics.  Relaxation has
+already been done upstream so interaction energy is evaluated in ``raw`` mode
+on the already-relaxed structure.  Pre/post RMSD is computed from the
+cleaned structure passed through by node 02.
 
-Column naming convention:
-  pre_<metric>   — metric computed on the cleaned (pre-relaxation) structure
-  post_<metric>  — metric computed on the relaxed structure
-  delta_<metric> — post − pre  (relaxation-induced change; key scalars only)
-  rmsd, bb_rmsd, rmsd_design, bb_rmsd_design — comparison between pre and post
+Outputs one ``{sample_id}_results.json`` per structure (consumed by node 04
+via ``binding-metrics-report``).
 
 Usage:
-  python compute_metrics.py [--inputs-dir DIR] [--outputs-dir DIR] [--device cpu|cuda]
-                            [--peptide-chain A] [--receptor-chain B]
+    python compute_metrics.py [--inputs-dir .] [--outputs-dir ./outputs]
+                              [--device cpu|cuda]
+                              [--peptide-chain A] [--receptor-chain B]
 """
 
 import argparse
-import json
 import sys
 import traceback
 from pathlib import Path
 
 
-# ---------------------------------------------------------------------------
-# Metric helpers
-# ---------------------------------------------------------------------------
-
 def _safe(fn, label: str, *args, **kwargs):
-    """Call fn(*args, **kwargs), returning {} on any exception."""
     try:
-        return fn(*args, **kwargs) or {}
-    except Exception as e:
-        print(f"  [warn] {label} failed: {type(e).__name__}: {e}", file=sys.stderr)
-        return {}
+        return fn(*args, **kwargs)
+    except Exception as exc:
+        print(f"  [warning] {label} failed: {exc}", flush=True)
+        traceback.print_exc()
+        return {"error": str(exc)}
 
 
-def compute_all_metrics(cif_path: Path, device: str, peptide_chain: str | None, receptor_chain: str | None) -> dict:
-    """Run the full binding-metrics suite on one structure.
+def _step(name: str) -> None:
+    print(f"\n{'='*60}\n  {name}\n{'='*60}", flush=True)
 
-    Returns a flat dict of scalar metric values.  List/nested values (e.g.
-    per_residue breakdowns) are dropped since they cannot live in a CSV row.
-    """
-    from binding_metrics import (
-        compute_interface_metrics,
-        compute_interaction_energy,
-        compute_coulomb_cross_chain,
-        compute_ramachandran,
-        compute_omega_planarity,
-        compute_shape_complementarity,
-        compute_buried_void_volume,
+
+def process_structure(relaxed_path, pre_path, outputs_dir, device, peptide_chain, receptor_chain):
+    stem = relaxed_path.stem
+    if stem.endswith("_md_final"):
+        sample_id = stem[:-9]
+    elif stem.endswith("_minimized"):
+        sample_id = stem[:-10]
+    else:
+        sample_id = stem
+
+    print(f"\n{'#'*60}\n  sample: {sample_id}\n  input:  {relaxed_path}\n{'#'*60}", flush=True)
+
+    results: dict = {"sample_id": sample_id, "input": str(relaxed_path)}
+
+    # Chain detection
+    _step("Chain detection")
+    from binding_metrics.io.structures import detect_chains_from_file
+    chain_info = _safe(detect_chains_from_file, "chain detection",
+                       relaxed_path, peptide_chain=peptide_chain,
+                       receptor_chain=receptor_chain, verbose=True)
+    if "error" not in chain_info:
+        peptide_chain  = chain_info.get("peptide_chain")  or peptide_chain
+        receptor_chain = chain_info.get("receptor_chain") or receptor_chain
+    results["chains"] = chain_info
+
+    # Relax — done upstream; record placeholder + pre/post RMSD
+    relax_info: dict = {"skipped": True, "note": "relaxation done in node 02"}
+    if pre_path is not None and pre_path.exists():
+        _step("Pre/post RMSD")
+        from binding_metrics.metrics.comparison import compute_structure_rmsd
+        relax_info["pre_post_comparison"] = _safe(
+            compute_structure_rmsd, "RMSD pre→post",
+            str(pre_path), str(relaxed_path), design_chain=peptide_chain,
+        )
+    results["relax"] = relax_info
+
+    # Energy (raw mode — structure already relaxed)
+    _step("Interaction Energy")
+    from binding_metrics.metrics.energy import compute_interaction_energy
+    results["energy"] = _safe(
+        compute_interaction_energy, "energy",
+        relaxed_path, peptide_chain=peptide_chain, receptor_chain=receptor_chain,
+        device=device, modes=("raw",),
     )
 
-    path_str = str(cif_path)
-    chain_kwargs = {}
-    if peptide_chain:
-        chain_kwargs["design_chain"] = peptide_chain
-    if receptor_chain:
-        chain_kwargs["receptor_chain"] = receptor_chain
-
-    row: dict = {}
-
-    # --- Interface metrics (SASA, solvation energy, H-bonds, salt bridges) ---
-    m = _safe(compute_interface_metrics, "interface_metrics", path_str, **chain_kwargs)
-    for key in [
-        "delta_sasa", "delta_g_int", "delta_g_int_kJ",
-        "polar_area", "apolar_area", "fraction_polar",
-        "hbonds", "saltbridges",
-        "n_interface_residues_peptide", "n_interface_residues_receptor",
-    ]:
-        row[key] = m.get(key)
-
-    # --- Force-field interaction energy (raw mode — structure already relaxed) ---
-    m = _safe(
-        compute_interaction_energy, "interaction_energy",
-        path_str, modes=("raw",), device=device, **chain_kwargs,
-    )
-    row["raw_interaction_energy"] = m.get("raw_interaction_energy")
-
-    # --- Coulomb electrostatics ---
-    m = _safe(compute_coulomb_cross_chain, "coulomb", path_str, **chain_kwargs)
-    row["coulomb_energy_kJ"] = m.get("coulomb_energy_kJ")
-    row["n_charged_pairs"]   = m.get("n_charged_pairs")
-
-    # --- Backbone geometry ---
-    rama_kwargs = {}
-    if peptide_chain:
-        rama_kwargs["chain"] = peptide_chain
-    m = _safe(compute_ramachandran, "ramachandran", path_str, **rama_kwargs)
-    row["ramachandran_favoured_pct"] = m.get("ramachandran_favoured_pct")
-    row["ramachandran_outlier_pct"]  = m.get("ramachandran_outlier_pct")
-
-    m = _safe(compute_omega_planarity, "omega", path_str, **rama_kwargs)
-    row["omega_mean_dev"]        = m.get("omega_mean_dev")
-    row["omega_outlier_fraction"] = m.get("omega_outlier_fraction")
-
-    # --- Interface geometry ---
-    m = _safe(compute_shape_complementarity, "shape_complementarity", path_str, **chain_kwargs)
-    row["sc"]       = m.get("sc")
-    row["sc_A_to_B"] = m.get("sc_A_to_B")
-    row["sc_B_to_A"] = m.get("sc_B_to_A")
-
-    m = _safe(compute_buried_void_volume, "void_volume", path_str, **chain_kwargs)
-    row["void_volume_A3"] = m.get("void_volume_A3")
-
-    return row
-
-
-# ---------------------------------------------------------------------------
-# Per-structure pipeline
-# ---------------------------------------------------------------------------
-
-DELTA_KEYS = [
-    "delta_sasa", "delta_g_int", "delta_g_int_kJ",
-    "hbonds", "saltbridges",
-    "raw_interaction_energy", "coulomb_energy_kJ",
-    "sc", "void_volume_A3",
-]
-
-
-def process_structure(
-    sample_id: str,
-    pre_file: Path,
-    post_file: Path,
-    device: str,
-    peptide_chain: str | None,
-    receptor_chain: str | None,
-) -> dict:
-    """Compute pre/post metrics + RMSD comparison for one structure pair."""
-    from binding_metrics import compute_structure_rmsd
-
-    print(f"\n[{sample_id}] Pre-relaxation:  {pre_file.name}")
-    pre_metrics = compute_all_metrics(pre_file, device, peptide_chain, receptor_chain)
-
-    print(f"[{sample_id}] Post-relaxation: {post_file.name}")
-    post_metrics = compute_all_metrics(post_file, device, peptide_chain, receptor_chain)
-
-    # --- RMSD comparison (pre vs post) ---
-    print(f"[{sample_id}] RMSD comparison...")
-    rmsd_dict = _safe(
-        compute_structure_rmsd, "structure_rmsd",
-        str(pre_file), str(post_file),
-        **({} if not peptide_chain else {"design_chain": peptide_chain}),
+    # Interface
+    _step("Interface Metrics (SASA, ΔG_int, H-bonds, salt bridges)")
+    from binding_metrics.metrics.interface import compute_interface_metrics
+    results["interface"] = _safe(
+        compute_interface_metrics, "interface",
+        relaxed_path, design_chain=peptide_chain, receptor_chain=receptor_chain,
     )
 
-    # --- Assemble flat row ---
-    row: dict = {"sample_id": sample_id, "success": True, "error_message": None}
+    # Geometry
+    _step("Geometry (Ramachandran, ω-planarity, shape complementarity, buried void)")
+    from binding_metrics.metrics.geometry import (
+        compute_ramachandran, compute_omega_planarity,
+        compute_shape_complementarity, compute_buried_void_volume,
+    )
+    results["geometry"] = {
+        "ramachandran":          _safe(compute_ramachandran,          "ramachandran",          relaxed_path, chain=peptide_chain),
+        "omega":                 _safe(compute_omega_planarity,       "omega planarity",       relaxed_path, chain=peptide_chain),
+        "shape_complementarity": _safe(compute_shape_complementarity, "shape complementarity", relaxed_path),
+        "buried_void":           _safe(compute_buried_void_volume,    "buried void volume",    relaxed_path),
+    }
 
-    for key, val in pre_metrics.items():
-        row[f"pre_{key}"] = val
-    for key, val in post_metrics.items():
-        row[f"post_{key}"] = val
+    # Electrostatics
+    _step("Electrostatics (Coulomb cross-chain)")
+    from binding_metrics.metrics.electrostatics import compute_coulomb_cross_chain
+    results["electrostatics"] = _safe(
+        compute_coulomb_cross_chain, "electrostatics",
+        relaxed_path, peptide_chain=peptide_chain, receptor_chain=receptor_chain,
+    )
 
-    # Delta (relaxation-induced change: post − pre)
-    for key in DELTA_KEYS:
-        pre_val  = pre_metrics.get(key)
-        post_val = post_metrics.get(key)
-        if pre_val is not None and post_val is not None:
-            row[f"delta_{key}"] = post_val - pre_val
-        else:
-            row[f"delta_{key}"] = None
+    results["openfold"] = {"skipped": True}
 
-    # RMSD
-    row["rmsd"]        = rmsd_dict.get("rmsd")
-    row["bb_rmsd"]     = rmsd_dict.get("bb_rmsd")
-    row["rmsd_design"] = rmsd_dict.get("rmsd_design")
-    row["bb_rmsd_design"] = rmsd_dict.get("bb_rmsd_design")
+    # Write per-structure JSON
+    from binding_metrics.protocols.report import write_report
+    out_path = write_report(results, outputs_dir, sample_id, fmt="json")
+    print(f"\n  Results → {out_path}", flush=True)
 
-    # Source paths (informational)
-    row["pre_structure"]  = str(pre_file)
-    row["post_structure"] = str(post_file)
+    return results
 
-    return row
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute binding metrics for pre/post relaxation pairs.")
-    parser.add_argument("--inputs-dir",     type=Path, default=Path("./inputs"))
+    parser = argparse.ArgumentParser(description="Compute binding metrics (node 03).")
+    parser.add_argument("--inputs-dir",     type=Path, default=Path("."))
     parser.add_argument("--outputs-dir",    type=Path, default=Path("./outputs"))
-    parser.add_argument("--device",         type=str,  default="cpu")
+    parser.add_argument("--device",         type=str,  default="cpu", choices=["cpu", "cuda"])
     parser.add_argument("--peptide-chain",  type=str,  default="")
     parser.add_argument("--receptor-chain", type=str,  default="")
     args = parser.parse_args()
@@ -193,73 +133,46 @@ def main():
     peptide_chain  = args.peptide_chain  or None
     receptor_chain = args.receptor_chain or None
 
-    # --- Find pre/post pairs ---
-    pre_files = sorted(inputs_dir.glob("cleaned_*.cif")) + \
-                sorted(inputs_dir.glob("cleaned_*.pdb"))
+    # Discover relaxed structures — priority: *_md_final > *_minimized > cleaned (fallback)
+    relaxed: dict[str, Path] = {}
+    for pat in ("*_md_final.cif", "*_md_final.pdb"):
+        for f in sorted(inputs_dir.glob(pat)):
+            relaxed.setdefault(f.stem[:-9], f)
+    for pat in ("*_minimized.cif", "*_minimized.pdb"):
+        for f in sorted(inputs_dir.glob(pat)):
+            relaxed.setdefault(f.stem[:-10], f)
+    for pat in ("cleaned_*.cif", "cleaned_*.pdb"):
+        for f in sorted(inputs_dir.glob(pat)):
+            stem = f.stem[8:]
+            if stem not in relaxed:
+                print(f"  [warning] no relaxed structure for '{stem}'; using cleaned fallback.")
+                relaxed[stem] = f
 
-    if not pre_files:
-        print("ERROR: no cleaned_*.cif / cleaned_*.pdb files found in inputs/", file=sys.stderr)
+    if not relaxed:
+        print(f"ERROR: no structures found in {inputs_dir}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Found {len(pre_files)} structure(s) to score.")
+    print(f"\nFound {len(relaxed)} structure(s) to process.")
 
-    rows = []
-    for pre_file in pre_files:
-        stem = pre_file.stem.removeprefix("cleaned_")   # e.g. "complex"
-
-        # Prefer MD final frame; fall back to minimized
-        post_md  = inputs_dir / f"{stem}_md_final.cif"
-        post_min = inputs_dir / f"{stem}_minimized.cif"
-
-        if post_md.exists():
-            post_file = post_md
-        elif post_min.exists():
-            post_file = post_min
-        else:
-            print(f"[{stem}] WARNING: no relaxed structure found, skipping.", file=sys.stderr)
-            rows.append({
-                "sample_id": stem,
-                "success": False,
-                "error_message": "No post-relaxation structure found",
-            })
-            continue
-
+    processed = 0
+    for stem, relaxed_path in sorted(relaxed.items()):
+        pre_path = None
+        for ext in (".cif", ".pdb"):
+            c = inputs_dir / f"cleaned_{stem}{ext}"
+            if c.exists():
+                pre_path = c
+                break
         try:
-            row = process_structure(
-                stem, pre_file, post_file,
-                args.device, peptide_chain, receptor_chain,
-            )
-        except Exception as e:
-            print(f"[{stem}] ERROR: {e}", file=sys.stderr)
+            process_structure(relaxed_path, pre_path, outputs_dir,
+                              args.device, peptide_chain, receptor_chain)
+            processed += 1
+        except Exception as exc:
+            print(f"\n[ERROR] {relaxed_path.name}: {exc}", file=sys.stderr)
             traceback.print_exc()
-            rows.append({
-                "sample_id": stem,
-                "success": False,
-                "error_message": f"{type(e).__name__}: {e}",
-            })
-            continue
 
-        rows.append(row)
-        print(f"[{stem}] OK — delta_g_int: pre={row.get('pre_delta_g_int'):.3f}  post={row.get('post_delta_g_int'):.3f}  "
-              f"RMSD={row.get('rmsd')}")
-
-    # --- Save outputs ---
-    import pandas as pd
-
-    df = pd.DataFrame(rows)
-
-    csv_path  = outputs_dir / "scores.csv"
-    json_path = outputs_dir / "scores.json"
-
-    df.to_csv(csv_path, index=False)
-    with open(json_path, "w") as f:
-        json.dump(rows, f, indent=2, default=str)
-
-    n_ok   = int(df["success"].sum()) if "success" in df.columns else len(df)
-    n_fail = len(df) - n_ok
-    print(f"\nDone. {n_ok} succeeded, {n_fail} failed.")
-    print(f"  scores.csv  → {csv_path}")
-    print(f"  scores.json → {json_path}")
+    print(f"\n{'#'*60}\n  Done: {processed}/{len(relaxed)} processed → {outputs_dir}\n{'#'*60}\n", flush=True)
+    if processed == 0:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
