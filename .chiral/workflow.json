@@ -1,0 +1,16 @@
+{
+  "name": "peptide-binding-metrics",
+  "description": "Physics-based scoring pipeline for peptide-protein complexes. Cleans and protonates the input structure, runs implicit-solvent MD relaxation (AMBER ff14SB + OBC2), computes a full suite of binding metrics on the relaxed structure (interaction energy, interface geometry, electrostatics, backbone quality, pre/post RMSD), and generates a per-structure CSV + Markdown scorecard. Cyclic peptide topology is auto-detected.",
+  "params": {
+    "INPUT_DIR":      ["String",  "input_files",                    "Subfolder inside 01-structure-prep/ containing input structures"],
+    "INPUT_COMPLEX":  ["String",  "example_linearpeptide_1YCR.cif", "Input filename inside INPUT_DIR (single mode only)"],
+    "BATCH_MODE":     ["Boolean", false,                             "Process all CIF/PDB files in INPUT_DIR (false = single file via INPUT_COMPLEX)"],
+    "PH":             ["Float",   7.4,                               "Protonation pH for structure preparation"],
+    "PEPTIDE_CHAIN":  ["String",  "",                                "Peptide chain ID override (empty = auto-detect smallest chain)"],
+    "RECEPTOR_CHAIN": ["String",  "",                                "Receptor chain ID override (empty = auto-detect by Cα contacts)"],
+    "MD_DURATION_PS": ["Float",   200.0,                             "MD simulation duration in picoseconds (0 = minimisation only)"],
+    "SOLVENT_MODEL":  ["String",  "obc2",                            "Implicit solvent model: obc2 or gbn2"],
+    "DEVICE":         ["String",  "cuda",                            "OpenMM compute device: cuda or cpu"],
+    "REPORT_SUMMARY": ["Boolean", true,                              "Write a Markdown scorecard (*_report.md) alongside the CSV"]
+  }
+}
