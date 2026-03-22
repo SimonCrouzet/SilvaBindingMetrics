@@ -4,7 +4,7 @@ set -euo pipefail
 mkdir -p ./outputs
 
 # Always pass through pre-relaxation structures for comparison in node 03
-for f in ./inputs/cleaned_*.cif ./inputs/cleaned_*.pdb; do
+for f in ./cleaned_*.cif ./cleaned_*.pdb; do
     [ -e "$f" ] || continue
     cp "$f" "./outputs/$(basename "$f")"
 done
@@ -38,7 +38,7 @@ run_relax() {
         echo "         outputs/${name}_md_final.cif"
 }
 
-for f in ./inputs/cleaned_*.cif ./inputs/cleaned_*.pdb; do
+for f in ./cleaned_*.cif ./cleaned_*.pdb; do
     [ -e "$f" ] || continue
     run_relax "$f"
 done
