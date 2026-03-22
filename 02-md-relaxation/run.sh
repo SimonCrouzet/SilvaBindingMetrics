@@ -18,7 +18,6 @@ run_relax() {
 
     echo "==> Relaxing: $input_file (sample_id=$name)"
 
-    # Optional chain overrides
     CHAIN_ARGS=""
     [ -n "${PARAM_PEPTIDE_CHAIN:-}" ]  && CHAIN_ARGS="$CHAIN_ARGS --peptide-chain  ${PARAM_PEPTIDE_CHAIN}"
     [ -n "${PARAM_RECEPTOR_CHAIN:-}" ] && CHAIN_ARGS="$CHAIN_ARGS --receptor-chain ${PARAM_RECEPTOR_CHAIN}"
@@ -28,7 +27,7 @@ run_relax() {
         --output-dir     ./outputs/ \
         --md-duration-ps "${PARAM_MD_DURATION_PS:-200.0}" \
         --solvent-model  "${PARAM_SOLVENT_MODEL:-obc2}" \
-        --device         "${PARAM_DEVICE:-cpu}" \
+        --device         "${PARAM_DEVICE:-cuda}" \
         --sample-id      "$name" \
         $CHAIN_ARGS
 

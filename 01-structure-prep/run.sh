@@ -23,7 +23,6 @@ run_prep() {
 INPUT_DIR="./${PARAM_INPUT_DIR:-input_files}"
 
 if [ "${PARAM_BATCH_MODE:-false}" = "true" ]; then
-    # Batch mode: process every CIF/PDB in INPUT_DIR
     found=0
     for f in "${INPUT_DIR}"/*.cif "${INPUT_DIR}"/*.pdb; do
         [ -e "$f" ] || continue
@@ -36,7 +35,6 @@ if [ "${PARAM_BATCH_MODE:-false}" = "true" ]; then
     fi
     echo "Prepared $found structure(s)."
 else
-    # Single mode: INPUT_DIR/INPUT_COMPLEX
     input_file="${INPUT_DIR}/${PARAM_INPUT_COMPLEX:-example_complex.cif}"
     if [ ! -f "$input_file" ]; then
         echo "ERROR: input file not found: $input_file" >&2
