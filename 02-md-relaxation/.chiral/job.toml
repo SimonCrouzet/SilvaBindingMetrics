@@ -22,7 +22,7 @@ enum_values  = ["obc2", "gbn2"]
 
 [params.DEVICE]
 type         = "enum"
-default      = "cpu"
+default      = "cuda"
 hint         = "OpenMM compute device"
 enum_values  = ["cpu", "cuda"]
 
