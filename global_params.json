@@ -1,11 +1,11 @@
 {
-  "INPUT_DIR":       "input_files",
-  "INPUT_COMPLEX":   "example_linearpeptide_1YCR.cif",
-  "BATCH_MODE":      "false",
-  "PH":              "7.4",
-  "PEPTIDE_CHAIN":   "",
-  "RECEPTOR_CHAIN":  "",
-  "MD_DURATION_PS":  "200.0",
-  "SOLVENT_MODEL":   "obc2",
-  "DEVICE":          "cuda"
+  "INPUT_DIR": "input_files",
+  "INPUT_COMPLEX": "example_linearpeptide_1YCR.cif",
+  "BATCH_MODE": "true",
+  "PH": "7.4",
+  "PEPTIDE_CHAIN": "",
+  "RECEPTOR_CHAIN": "",
+  "MD_DURATION_PS": "200.0",
+  "SOLVENT_MODEL": "obc2",
+  "DEVICE": "cuda"
 }
