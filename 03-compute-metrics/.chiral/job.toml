@@ -1,10 +1,11 @@
 name        = "Compute Metrics"
 description = "Full binding-metrics suite on relaxed structures: interaction energy, interface (SASA, ΔG_int, H-bonds, salt bridges), geometry (Ramachandran, ω-planarity, shape complementarity, void volume), Coulomb electrostatics, and pre/post RMSD. Outputs one *_results.json per structure."
-inputs      = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif"]
-outputs     = ["*_results.json"]
+inputs      = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif", "*_relax_results.json"]
+outputs     = ["*_results.json", "*.log"]
 
 [container]
-image = "simoncrouzet/binding-metrics:latest"
+image    = "simoncrouzet/binding-metrics:latest"
+use_gpu  = true
 
 [scripts]
 run = "./run.sh"

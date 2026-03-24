@@ -34,7 +34,7 @@ def _step(name: str) -> None:
     print(f"\n{'='*60}\n  {name}\n{'='*60}", flush=True)
 
 
-def process_structure(relaxed_path, pre_path, outputs_dir, device, peptide_chain, receptor_chain):
+def process_structure(relaxed_path, pre_path, inputs_dir, outputs_dir, device, peptide_chain, receptor_chain):
     stem = relaxed_path.stem
     if stem.endswith("_md_final"):
         sample_id = stem[:-9]
@@ -58,8 +58,14 @@ def process_structure(relaxed_path, pre_path, outputs_dir, device, peptide_chain
         receptor_chain = chain_info.get("receptor_chain") or receptor_chain
     results["chains"] = chain_info
 
-    # Relax — done upstream; record placeholder + pre/post RMSD
-    relax_info: dict = {"skipped": True, "note": "relaxation done in node 02"}
+    # Relax — done upstream; load structured results from *_relax_results.json
+    import json as _json
+    relax_json = inputs_dir / f"{sample_id}_relax_results.json"
+    if relax_json.exists():
+        with open(relax_json) as fh:
+            relax_info = _json.load(fh)
+    else:
+        relax_info = {"skipped": True, "note": "relaxation done upstream; _relax_results.json not found"}
     if pre_path is not None and pre_path.exists():
         _step("Pre/post RMSD")
         from binding_metrics.metrics.comparison import compute_structure_rmsd
@@ -69,7 +75,7 @@ def process_structure(relaxed_path, pre_path, outputs_dir, device, peptide_chain
         )
     results["relax"] = relax_info
 
-    # Energy (raw mode — structure already relaxed)
+    # Energy (raw mode — structure already relaxed in node 02, no re-minimisation)
     _step("Interaction Energy")
     from binding_metrics.metrics.energy import compute_interaction_energy
     results["energy"] = _safe(
@@ -124,55 +130,60 @@ def main():
     parser.add_argument("--device",         type=str,  default="cpu", choices=["cpu", "cuda"])
     parser.add_argument("--peptide-chain",  type=str,  default="")
     parser.add_argument("--receptor-chain", type=str,  default="")
+    parser.add_argument("--log-file",       type=Path, default=None, metavar="PATH",
+                        help="Redirect all output to this file (stdout silent when set)")
     args = parser.parse_args()
 
     inputs_dir  = args.inputs_dir
     outputs_dir = args.outputs_dir
     outputs_dir.mkdir(parents=True, exist_ok=True)
 
-    peptide_chain  = args.peptide_chain  or None
-    receptor_chain = args.receptor_chain or None
+    from binding_metrics.cli import log_to_file
 
-    # Discover relaxed structures — priority: *_md_final > *_minimized > cleaned (fallback)
-    relaxed: dict[str, Path] = {}
-    for pat in ("*_md_final.cif", "*_md_final.pdb"):
-        for f in sorted(inputs_dir.glob(pat)):
-            relaxed.setdefault(f.stem[:-9], f)
-    for pat in ("*_minimized.cif", "*_minimized.pdb"):
-        for f in sorted(inputs_dir.glob(pat)):
-            relaxed.setdefault(f.stem[:-10], f)
-    for pat in ("cleaned_*.cif", "cleaned_*.pdb"):
-        for f in sorted(inputs_dir.glob(pat)):
-            stem = f.stem[8:]
-            if stem not in relaxed:
-                print(f"  [warning] no relaxed structure for '{stem}'; using cleaned fallback.")
-                relaxed[stem] = f
+    with log_to_file(args.log_file):
+        peptide_chain  = args.peptide_chain  or None
+        receptor_chain = args.receptor_chain or None
 
-    if not relaxed:
-        print(f"ERROR: no structures found in {inputs_dir}", file=sys.stderr)
-        sys.exit(1)
+        # Discover relaxed structures — priority: *_md_final > *_minimized > cleaned (fallback)
+        relaxed: dict[str, Path] = {}
+        for pat in ("*_md_final.cif", "*_md_final.pdb"):
+            for f in sorted(inputs_dir.glob(pat)):
+                relaxed.setdefault(f.stem[:-9], f)
+        for pat in ("*_minimized.cif", "*_minimized.pdb"):
+            for f in sorted(inputs_dir.glob(pat)):
+                relaxed.setdefault(f.stem[:-10], f)
+        for pat in ("cleaned_*.cif", "cleaned_*.pdb"):
+            for f in sorted(inputs_dir.glob(pat)):
+                stem = f.stem[8:]
+                if stem not in relaxed:
+                    print(f"  [warning] no relaxed structure for '{stem}'; using cleaned fallback.")
+                    relaxed[stem] = f
 
-    print(f"\nFound {len(relaxed)} structure(s) to process.")
+        if not relaxed:
+            print(f"ERROR: no structures found in {inputs_dir}", file=sys.stderr)
+            sys.exit(1)
 
-    processed = 0
-    for stem, relaxed_path in sorted(relaxed.items()):
-        pre_path = None
-        for ext in (".cif", ".pdb"):
-            c = inputs_dir / f"cleaned_{stem}{ext}"
-            if c.exists():
-                pre_path = c
-                break
-        try:
-            process_structure(relaxed_path, pre_path, outputs_dir,
-                              args.device, peptide_chain, receptor_chain)
-            processed += 1
-        except Exception as exc:
-            print(f"\n[ERROR] {relaxed_path.name}: {exc}", file=sys.stderr)
-            traceback.print_exc()
+        print(f"\nFound {len(relaxed)} structure(s) to process.")
 
-    print(f"\n{'#'*60}\n  Done: {processed}/{len(relaxed)} processed → {outputs_dir}\n{'#'*60}\n", flush=True)
-    if processed == 0:
-        sys.exit(1)
+        processed = 0
+        for stem, relaxed_path in sorted(relaxed.items()):
+            pre_path = None
+            for ext in (".cif", ".pdb"):
+                c = inputs_dir / f"cleaned_{stem}{ext}"
+                if c.exists():
+                    pre_path = c
+                    break
+            try:
+                process_structure(relaxed_path, pre_path, inputs_dir, outputs_dir,
+                                  args.device, peptide_chain, receptor_chain)
+                processed += 1
+            except Exception as exc:
+                print(f"\n[ERROR] {relaxed_path.name}: {exc}", file=sys.stderr)
+                traceback.print_exc()
+
+        print(f"\n{'#'*60}\n  Done: {processed}/{len(relaxed)} processed → {outputs_dir}\n{'#'*60}\n", flush=True)
+        if processed == 0:
+            sys.exit(1)
 
 
 if __name__ == "__main__":
