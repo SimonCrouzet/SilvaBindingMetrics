@@ -1,10 +1,11 @@
 name        = "MD Relaxation"
 description = "Implicit-solvent multi-stage minimisation + optional short MD via binding-metrics-relax (AMBER ff14SB, OBC2/GBn2). Passes through pre-relaxation structures so node 03 can compare before/after."
 inputs      = ["cleaned_*.cif", "cleaned_*.pdb"]
-outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif"]
+outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "*_minimized.cif", "*_md_final.cif", "*_relax_results.json", "*.log"]
 
 [container]
-image = "simoncrouzet/binding-metrics:latest"
+image    = "simoncrouzet/binding-metrics:latest"
+use_gpu  = true
 
 [scripts]
 run = "./run.sh"

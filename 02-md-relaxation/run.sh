@@ -29,6 +29,7 @@ run_relax() {
         --solvent-model  "${PARAM_SOLVENT_MODEL:-obc2}" \
         --device         "${PARAM_DEVICE:-cuda}" \
         --sample-id      "$name" \
+        --log-file       "./outputs/${name}_relax.log" \
         $CHAIN_ARGS
 
     echo "    Done: outputs/${name}_minimized.cif"
