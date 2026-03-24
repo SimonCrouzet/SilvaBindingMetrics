@@ -1,7 +1,7 @@
 name        = "Report"
 description = "Converts each *_results.json from node 03 into CSV and a self-contained HTML report (RAG scorecard) via binding-metrics-report."
 inputs      = ["*_results.json"]
-outputs     = ["*_results.json", "*_results.csv", "*_report.html"]
+outputs     = ["*_results.json", "*_results.csv", "*_report.html", "*.log"]
 
 [container]
 image = "simoncrouzet/binding-metrics:latest"

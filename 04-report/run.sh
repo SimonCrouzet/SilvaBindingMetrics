@@ -7,12 +7,15 @@ found=0
 for results_file in ./*_results.json; do
     [ -e "$results_file" ] || continue
     found=$((found + 1))
+    name=$(basename "$results_file" _results.json)
     echo "==> Reporting: $results_file"
     binding-metrics-report \
         --results        "$results_file" \
         --format         csv \
         --output-dir     ./outputs/ \
-        --summary-format html
+        --summary \
+        --summary-format html \
+        --log-file       "./outputs/${name}_report.log"
 done
 
 if [ "$found" -eq 0 ]; then

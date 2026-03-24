@@ -13,10 +13,10 @@ run_prep() {
 
     echo "==> Preparing: $input_file -> $output"
     binding-metrics-prep \
-        --input  "$input_file" \
-        --output "$output" \
-        --ph     "${PARAM_PH:-7.4}" \
-        | tee "./outputs/prep_summary_${name}.json"
+        --input    "$input_file" \
+        --output   "$output" \
+        --ph       "${PARAM_PH:-7.4}" \
+        --log-file "./outputs/${name}_prep.log"
     echo "    Done: $output"
 }
 

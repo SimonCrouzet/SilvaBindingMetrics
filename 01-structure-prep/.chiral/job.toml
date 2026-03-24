@@ -1,6 +1,6 @@
 name        = "Structure Preparation"
 description = "Fix missing atoms, replace non-standard residues, and add hydrogens using binding-metrics-prep (PDBFixer)."
-outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "prep_summary*.json"]
+outputs     = ["cleaned_*.cif", "cleaned_*.pdb", "*.log"]
 
 [container]
 image = "simoncrouzet/binding-metrics:latest"
