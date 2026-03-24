@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>Binding Metrics Report — example_cyclicpeptide_3P8F</title>
+<style>
+        body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto;
+               padding: 0 1rem; color: #1a1a1a; line-height: 1.5; }
+        h1 { border-bottom: 2px solid #0066cc; padding-bottom: .4rem; }
+        h2 { margin-top: 2rem; border-bottom: 1px solid #ccc; padding-bottom: .2rem; }
+        table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .9rem; }
+        th, td { border: 1px solid #ddd; padding: .4rem .7rem; text-align: left; }
+        th { background: #f0f4ff; font-weight: 600; }
+        tr:nth-child(even) { background: #fafafa; }
+        blockquote { border-left: 4px solid #0066cc; margin: 1rem 0; padding: .5rem 1rem;
+                     background: #f0f4ff; border-radius: 0 4px 4px 0; }
+        code { background: #f4f4f4; padding: .1rem .3rem; border-radius: 3px; font-size: .88em; }
+    </style>
+</head>
+<body>
+<h1>Binding Metrics Report</h1>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sample ID</td>
+<td><code>example_cyclicpeptide_3P8F</code></td>
+</tr>
+<tr>
+<td>Input</td>
+<td><code>example_cyclicpeptide_3P8F_md_final.cif</code></td>
+</tr>
+<tr>
+<td>Peptide chain</td>
+<td><code>I</code> (14 res)</td>
+</tr>
+<tr>
+<td>Receptor chain</td>
+<td><code>A</code> (227 res)</td>
+</tr>
+<tr>
+<td>Elapsed</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Generated</td>
+<td>2026-03-24 02:15</td>
+</tr>
+</tbody>
+</table>
+<h2>Relaxation</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Min. energy</td>
+<td>-33484.966</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>MD avg energy</td>
+<td>-21335.951</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>MD energy std</td>
+<td>192.482</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>RMSD (final)</td>
+<td>8.094</td>
+<td>Å</td>
+</tr>
+<tr>
+<td>RMSF mean</td>
+<td>1.403</td>
+<td>Å</td>
+</tr>
+<tr>
+<td>RMSF max</td>
+<td>2.267</td>
+<td>Å</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>High RMSF (&gt; 1.5 Å):</strong> res1=2.00, res2=1.59, res12=1.87, res13=2.27, res14=2.21</p>
+<h2>Cyclic topology</h2>
+<table>
+<thead>
+<tr>
+<th>Bond type</th>
+<th>Atom 1</th>
+<th>Atom 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>head_to_tail</td>
+<td>I:14:C</td>
+<td>I:1:N</td>
+</tr>
+<tr>
+<td>disulfide</td>
+<td>I:3:SG</td>
+<td>I:11:SG</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>ℹ️ 2 closure bond(s) detected. Ramachandran and ω outlier scores should be interpreted with this in mind.</p>
+</blockquote>
+<h2>Interaction Energy</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E_int</td>
+<td>—</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>E_complex</td>
+<td>—</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>E_peptide</td>
+<td>—</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>E_receptor</td>
+<td>—</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>Contacts</td>
+<td>15123</td>
+<td></td>
+</tr>
+<tr>
+<td>Close contacts</td>
+<td>833</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Interface</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ΔSASA</td>
+<td>1775.325</td>
+<td>Å²</td>
+</tr>
+<tr>
+<td>ΔG_int</td>
+<td>36.784</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>Polar area</td>
+<td>435.886</td>
+<td>Å²</td>
+</tr>
+<tr>
+<td>Apolar area</td>
+<td>300.587</td>
+<td>Å²</td>
+</tr>
+<tr>
+<td>Fraction polar</td>
+<td>0.2455</td>
+<td></td>
+</tr>
+<tr>
+<td>H-bonds</td>
+<td>12</td>
+<td></td>
+</tr>
+<tr>
+<td>Salt bridges</td>
+<td>2</td>
+<td></td>
+</tr>
+<tr>
+<td>Interface res (pep)</td>
+<td>13</td>
+<td></td>
+</tr>
+<tr>
+<td>Interface res (rec)</td>
+<td>31</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Per-residue buried SASA — peptide</strong></p>
+<table>
+<thead>
+<tr>
+<th>Residue</th>
+<th>Buried SASA (Å²)</th>
+<th>Polar (Å²)</th>
+<th>Apolar (Å²)</th>
+<th>ΔG_res (kcal/mol)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GLY:1</td>
+<td>28.76</td>
+<td>12.61</td>
+<td>4.53</td>
+<td>0.2302</td>
+</tr>
+<tr>
+<td>ARG:2</td>
+<td>148.35</td>
+<td>26.88</td>
+<td>15.60</td>
+<td>1.4441</td>
+</tr>
+<tr>
+<td>CYS:3</td>
+<td>63.36</td>
+<td>19.65</td>
+<td>21.70</td>
+<td>0.0659</td>
+</tr>
+<tr>
+<td>THR:4</td>
+<td>61.11</td>
+<td>2.57</td>
+<td>13.46</td>
+<td>-0.1538</td>
+</tr>
+<tr>
+<td>LYS:5</td>
+<td>231.36</td>
+<td>38.16</td>
+<td>16.73</td>
+<td>0.8481</td>
+</tr>
+<tr>
+<td>SER:6</td>
+<td>47.67</td>
+<td>9.15</td>
+<td>7.67</td>
+<td>0.1014</td>
+</tr>
+<tr>
+<td>ILE:7</td>
+<td>132.98</td>
+<td>23.34</td>
+<td>18.49</td>
+<td>0.3000</td>
+</tr>
+<tr>
+<td>PRO:8</td>
+<td>74.27</td>
+<td>0.00</td>
+<td>19.37</td>
+<td>-0.3100</td>
+</tr>
+<tr>
+<td>PRO:9</td>
+<td>56.29</td>
+<td>13.39</td>
+<td>4.28</td>
+<td>0.2530</td>
+</tr>
+<tr>
+<td>ILE:10</td>
+<td>72.44</td>
+<td>1.12</td>
+<td>9.31</td>
+<td>-0.1222</td>
+</tr>
+<tr>
+<td>CYS:11</td>
+<td>8.85</td>
+<td>0.00</td>
+<td>8.85</td>
+<td>-0.1858</td>
+</tr>
+<tr>
+<td>PHE:12</td>
+<td>66.33</td>
+<td>0.00</td>
+<td>29.44</td>
+<td>-0.4710</td>
+</tr>
+<tr>
+<td>ASP:14</td>
+<td>10.61</td>
+<td>2.68</td>
+<td>0.00</td>
+<td>0.0643</td>
+</tr>
+</tbody>
+</table>
+<h2>Geometry</h2>
+<p><strong>Ramachandran</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Favoured</td>
+<td>91.7 %</td>
+</tr>
+<tr>
+<td>Allowed</td>
+<td>0.0 %</td>
+</tr>
+<tr>
+<td>Outliers</td>
+<td>8.3 % (n=1)</td>
+</tr>
+<tr>
+<td>Residues evaluated</td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>Rama outlier:</strong> LYS5 (φ=-75.5°, ψ=42.4°)</p>
+<p><strong>Peptide-bond planarity (ω)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean deviation</td>
+<td>21.6 °</td>
+</tr>
+<tr>
+<td>Max deviation</td>
+<td>161.9 °</td>
+</tr>
+<tr>
+<td>Outlier fraction</td>
+<td>0.308</td>
+</tr>
+<tr>
+<td>Outlier count</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>ω outlier:</strong> GLY1 (ω=-164.5°, dev=15.5°)</p>
+<p>⚠️ <strong>ω outlier:</strong> LYS5 (ω=-164.3°, dev=15.7°)</p>
+<p>⚠️ <strong>ω outlier:</strong> ILE7 (ω=-18.1°, dev=161.9°)</p>
+<p>⚠️ <strong>ω outlier:</strong> ILE10 (ω=-160.1°, dev=19.9°)</p>
+<h2>Electrostatics</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coulomb E</td>
+<td>-279.016</td>
+<td>kJ/mol</td>
+</tr>
+<tr>
+<td>Charged pairs</td>
+<td>28</td>
+<td></td>
+</tr>
+<tr>
+<td>Attractive</td>
+<td>22</td>
+<td></td>
+</tr>
+<tr>
+<td>Repulsive</td>
+<td>6</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>OpenFold</h2>
+<p><em>Skipped.</em></p>
+<h2>Summary Scorecard</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Metric</th>
+<th>Value</th>
+<th>Unit</th>
+<th>Better</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴</td>
+<td>MD RMSD</td>
+<td>8.094</td>
+<td>Å</td>
+<td>↓</td>
+</tr>
+<tr>
+<td>🟡</td>
+<td>RMSF mean</td>
+<td>1.403</td>
+<td>Å</td>
+<td>↓</td>
+</tr>
+<tr>
+<td>⬜</td>
+<td>E_int</td>
+<td>—</td>
+<td>kJ/mol</td>
+<td>↓</td>
+</tr>
+<tr>
+<td>🟢</td>
+<td>ΔSASA</td>
+<td>1775.325</td>
+<td>Å²</td>
+<td>↑</td>
+</tr>
+<tr>
+<td>🟢</td>
+<td>H-bonds</td>
+<td>12</td>
+<td></td>
+<td>↑</td>
+</tr>
+<tr>
+<td>🟢</td>
+<td>Salt bridges</td>
+<td>2</td>
+<td></td>
+<td>↑</td>
+</tr>
+<tr>
+<td>🟡</td>
+<td>Rama favoured</td>
+<td>91.667</td>
+<td>%</td>
+<td>↑</td>
+</tr>
+<tr>
+<td>🔴</td>
+<td>ω outlier frac</td>
+<td>0.308</td>
+<td></td>
+<td>↓</td>
+</tr>
+<tr>
+<td>🟢</td>
+<td>Coulomb E</td>
+<td>-279.016</td>
+<td>kJ/mol</td>
+<td>↓</td>
+</tr>
+</tbody>
+</table>
+<p>🟢 OK  🟡 AMBER  🔴 RED  ⬜ N/A</p>
+</body>
+</html>
