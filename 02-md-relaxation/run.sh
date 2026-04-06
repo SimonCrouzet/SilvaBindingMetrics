@@ -3,6 +3,8 @@ set -euo pipefail
 
 mkdir -p ./outputs
 
+for f in inputs/*; do [ -e "$f" ] && cp "$f" .; done
+
 # Always pass through pre-relaxation structures for comparison in node 03
 for f in ./cleaned_*.cif ./cleaned_*.pdb; do
     [ -e "$f" ] || continue

@@ -3,6 +3,8 @@ set -euo pipefail
 
 mkdir -p ./outputs
 
+for f in inputs/*; do [ -e "$f" ] && cp "$f" .; done
+
 python3 ./compute_metrics.py \
     --inputs-dir     ./ \
     --outputs-dir    ./outputs/ \
