@@ -3,6 +3,8 @@ set -euo pipefail
 
 mkdir -p ./outputs
 
+for f in inputs/*; do [ -e "$f" ] && cp "$f" .; done
+
 found=0
 for results_file in ./*_results.json; do
     [ -e "$results_file" ] || continue
